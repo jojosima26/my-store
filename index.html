@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuickCart | Premium Reseller</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         /* Smooth scrolling and basic animations */
@@ -104,15 +106,34 @@
     </div>
 
     <script>
-        // 1. Product & Cart Logic
-        const products = [
-            { id: 1, name: "Elegant Floral Kurti", price: 499, image: "https://images.unsplash.com/photo-1583391733959-b151249b4fc6?auto=format&fit=crop&q=80&w=400&h=400" },
-            { id: 2, name: "Men's Classic Chronograph Watch", price: 899, image: "https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&q=80&w=400&h=400" },
-            { id: 3, name: "Wireless Bluetooth Earbuds", price: 650, image: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&q=80&w=400&h=400" },
-            { id: 4, name: "Premium Leather Wallet", price: 299, image: "https://images.unsplash.com/photo-1627123424574-724758594e93?auto=format&fit=crop&q=80&w=400&h=400" }
-        ];
-
+let products = [];
         let cart = [];
+
+        // 1. Fetch Products from Google Sheets
+        const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVoih4kLhyD21dSE2TP-R65G14mi0kTlGMr1b2_hS2uDahkLABhaZytvkDHjAxZ6Wj04JalyZemoDY/pub?gid=2078047308&single=true&output=csv"; // PASTE YOUR LINK BETWEEN THESE QUOTES
+
+        Papa.parse(sheetUrl, {
+            download: true,
+            header: true,
+            complete: function(results) {
+                // Convert the spreadsheet data into our website format
+                products = results.data.map(p => ({
+                    id: parseInt(p.id),
+                    name: p.name,
+                    price: parseFloat(p.price),
+                    originalPrice: p.originalPrice ? parseFloat(p.originalPrice) : null,
+                    discount: p.discount,
+                    category: p.category,
+                    image: p.image
+                })).filter(p => p.name); // This removes any empty rows at the bottom of your sheet
+
+                // Draw the products on the screen
+                renderProducts();
+            }
+        });
+
+        function renderProducts() {
+            // ... (keep your existing renderProducts code exactly the same) ...
 
  function renderProducts() {
     const grid = document.getElementById('product-grid');
